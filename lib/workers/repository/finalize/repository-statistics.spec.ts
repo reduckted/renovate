@@ -1,3 +1,4 @@
+import * as _reporting from '../../../instrumentation/reporting';
 import { logger } from '../../../logger';
 import { platform } from '../../../modules/platform';
 import * as cache from '../../../util/cache/repository';
@@ -17,7 +18,9 @@ import type { RenovateConfig } from '~test/util';
 
 vi.mock('../../../modules/platform/github/pr');
 vi.mock('../../../util/http/github');
+vi.mock('../../../instrumentation/reporting');
 
+const reporting = vi.mocked(_reporting);
 const prJson = Fixtures.getJson('./pr-list.json');
 const result = Object.keys(prJson).map((key) => {
   return prJson[key];
@@ -183,6 +186,72 @@ describe('workers/repository/finalize/repository-statistics', () => {
       runBranchSummary(config);
 
       expect(logger.debug).toHaveBeenCalledTimes(2);
+    });
+
+    it('adds branch stats', () => {
+      const defaultBranch = 'main';
+      const config: RenovateConfig = {
+        defaultBranch,
+      };
+      const branchCache = partial<BranchCache>({
+        result: 'done',
+        upgrades: partial<BranchUpgradeCache[]>([
+          {
+            datasource: 'npm',
+            depName: 'minimist',
+            currentValue: '1.2.3',
+            sourceUrl: 'someUrl',
+            depType: 'dependencies',
+          },
+        ]),
+        files: [
+          { path: 'a.txt', type: 'addition' },
+          { path: 'b.txt', type: 'deletion' },
+        ],
+        prNo: 10,
+        prTitle: 'updates',
+        prBlockedBy: 'AwaitingTests',
+      });
+
+      const branches: BranchCache[] = [{ ...branchCache, branchName: 'b1' }];
+      const cache = partial<RepoCacheData>({
+        branches,
+      });
+      getCacheSpy.mockReturnValueOnce(cache);
+      isCacheModifiedSpy.mockReturnValueOnce(false);
+
+      runBranchSummary(config);
+
+      expect(reporting.addBranchStats).toHaveBeenCalledExactlyOnceWith(config, [
+        {
+          branchName: 'b1',
+          files: [
+            { path: 'a.txt', type: 'addition' },
+            { path: 'b.txt', type: 'deletion' },
+          ],
+          prBlockedBy: 'AwaitingTests',
+          prNo: 10,
+          prTitle: 'updates',
+          result: 'done',
+          upgrades: [
+            {
+              datasource: 'npm',
+              depName: 'minimist',
+              currentValue: '1.2.3',
+              displayPending: undefined,
+              fixedVersion: undefined,
+              currentVersion: undefined,
+              currentDigest: undefined,
+              newValue: undefined,
+              newVersion: undefined,
+              newDigest: undefined,
+              packageFile: undefined,
+              updateType: undefined,
+              packageName: undefined,
+            },
+          ],
+        },
+      ]);
     });
   });
 });
