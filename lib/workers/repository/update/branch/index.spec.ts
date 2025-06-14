@@ -23,6 +23,7 @@ import type {
 import { hashBody } from '../../../../modules/platform/pr-body';
 import * as _repoCache from '../../../../util/cache/repository';
 import * as _exec from '../../../../util/exec';
+import * as _cachedFiles from '../../../../util/git/cached-files';
 import type {
   FileChange,
   LongCommitSha,
@@ -66,6 +67,7 @@ vi.mock('../../../../util/sanitize');
 vi.mock('../../../../util/fs');
 vi.mock('../../../global/limits');
 vi.mock('../../../../util/cache/repository');
+vi.mock('../../../../util/git/cached-files');
 
 const getUpdated = vi.mocked(_getUpdated);
 const schedule = vi.mocked(_schedule);
@@ -81,6 +83,7 @@ const exec = vi.mocked(_exec);
 const sanitize = vi.mocked(_sanitize);
 const limits = vi.mocked(_limits);
 const repoCache = vi.mocked(_repoCache);
+const cachedFiles = vi.mocked(_cachedFiles);
 
 const adminConfig: RepoGlobalConfig = { localDir: '', cacheDir: '' };
 
@@ -2683,6 +2686,94 @@ describe('workers/repository/update/branch/index', () => {
       } finally {
         await tmpDir.cleanup();
       }
+    });
+
+    it('caches updated files', async () => {
+      const updatedPackageFile: FileChange = {
+        type: 'addition',
+        path: 'pom.xml',
+        contents: 'pom.xml file contents',
+      };
+      const updatedArtifactFile1: FileChange = {
+        type: 'addition',
+        path: 'yarn.lock',
+        contents: 'lock file update',
+      };
+      const updatedArtifactFile2: FileChange = {
+        type: 'addition',
+        path: 'artifact.txt',
+        contents: 'some artifact',
+      };
+      getUpdated.getUpdatedPackageFiles.mockResolvedValueOnce(
+        partial<PackageFilesResult>({
+          updatedPackageFiles: [updatedPackageFile],
+          artifactErrors: [],
+          updatedArtifacts: [updatedArtifactFile1],
+        }),
+      );
+      npmPostExtract.getAdditionalFiles.mockResolvedValueOnce({
+        artifactErrors: [],
+        updatedArtifacts: [updatedArtifactFile2],
+      });
+      scm.branchExists.mockResolvedValueOnce(false);
+      platform.getBranchPr.mockResolvedValueOnce(null);
+      scm.isBranchModified.mockResolvedValueOnce(false);
+      git.getRepoStatus.mockResolvedValueOnce(
+        partial<StatusResult>({
+          modified: ['modified_file'],
+          not_added: [],
+          deleted: ['deleted_file'],
+        }),
+      );
+
+      fs.readLocalFile.mockResolvedValueOnce('modified file content');
+      fs.localPathExists.mockResolvedValueOnce(true);
+      fs.localPathIsFile.mockResolvedValueOnce(true);
+
+      schedule.isScheduledNow.mockReturnValueOnce(true);
+      commit.commitFilesToBranch.mockResolvedValueOnce(null);
+
+      GlobalConfig.set({
+        ...adminConfig,
+        allowedCommands: ['^echo hardcoded-string$'],
+        localDir: '/localDir',
+      });
+
+      const inconfig: BranchConfig = {
+        ...config,
+        postUpgradeTasks: {
+          executionMode: 'branch',
+          commands: ['echo hardcoded-string'],
+          fileFilters: ['modified_file', 'deleted_file'],
+        },
+        upgrades: partial<BranchUpgradeConfig>([
+          {
+            depName: 'some-dep-name-1',
+            postUpgradeTasks: {
+              executionMode: 'branch',
+              commands: ['echo hardcoded-string'],
+              fileFilters: ['modified_file', 'deleted_file'],
+            },
+          },
+        ]),
+      };
+
+      await branchWorker.processBranch(inconfig);
+
+      expect(cachedFiles.setCachedFiles).toHaveBeenCalledExactlyOnceWith(
+        config.branchName,
+        [
+          updatedArtifactFile1,
+          updatedArtifactFile2,
+          {
+            type: 'addition',
+            path: 'modified_file',
+            contents: 'modified file content',
+          },
+          { type: 'deletion', path: 'deleted_file' },
+          updatedPackageFile,
+        ],
+      );
     });
 
     it('returns when rebaseWhen=never', async () => {

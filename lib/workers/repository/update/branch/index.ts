@@ -30,6 +30,7 @@ import { scm } from '../../../../modules/platform/scm';
 import { ExternalHostError } from '../../../../types/errors/external-host-error';
 import { getElapsedMs } from '../../../../util/date';
 import { emojify } from '../../../../util/emoji';
+import { setCachedFiles } from '../../../../util/git/cached-files';
 import {
   getMergeConfidenceLevel,
   isActiveConfidenceLevel,
@@ -629,6 +630,11 @@ export async function processBranch(
 
       // modifies the file changes in place to allow having a version bump in a packageFile or artifact
       await bumpVersions(config);
+
+      setCachedFiles(config.branchName, [
+        ...(config.updatedArtifacts ?? []),
+        ...(config.updatedPackageFiles ?? []),
+      ]);
 
       removeMeta(['dep']);
 

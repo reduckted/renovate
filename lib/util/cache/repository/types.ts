@@ -113,6 +113,10 @@ export interface BranchCache {
    */
   upgrades: BranchUpgradeCache[];
   /**
+   * Details on the files that will be modified in this branch
+   */
+  files?: FileChangeCache[];
+  /**
    * Object that has PR info
    */
   prCache?: PrCache | null;
@@ -123,6 +127,18 @@ export interface BranchCache {
   prBlockedBy?: PrBlockedBy;
   prTitle?: string;
   result?: string;
+}
+
+export interface FileChangeCache {
+  /**
+   * Whether the file was added (or modified) or deleted.
+   */
+  type: 'addition' | 'deletion';
+
+  /**
+   * Relative file path
+   */
+  path: string;
 }
 
 export interface RepoCacheData {

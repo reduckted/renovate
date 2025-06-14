@@ -8,6 +8,7 @@ import type {
   BranchUpgradeCache,
 } from '../../util/cache/repository/types';
 import { getCachedBehindBaseResult } from '../../util/git/behind-base-branch-cache';
+import { getCachedFiles } from '../../util/git/cached-files';
 import { getCachedConflictResult } from '../../util/git/conflicts-cache';
 import { getCachedModifiedResult } from '../../util/git/modified-cache';
 import { getCachedPristineResult } from '../../util/git/pristine';
@@ -101,6 +102,7 @@ async function generateBranchCache(
       : [];
     const commitFingerprint = branch.commitFingerprint;
     const prCache = getPrCache(branchName);
+    const files = getCachedFiles(branchName);
 
     return {
       automerge,
@@ -119,6 +121,7 @@ async function generateBranchCache(
       result,
       sha: branchSha,
       upgrades,
+      files,
     };
   } catch (error) {
     const err = error.err ?? error; // external host error nests err
