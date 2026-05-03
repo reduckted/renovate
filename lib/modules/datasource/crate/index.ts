@@ -4,7 +4,7 @@ import { logger } from '../../../logger/index.ts';
 import * as memCache from '../../../util/cache/memory/index.ts';
 import { withCache } from '../../../util/cache/package/with-cache.ts';
 import { privateCacheDir, readCacheFile } from '../../../util/fs/index.ts';
-import { createSimpleGit } from '../../../util/git/index.ts';
+import { createSimpleGit } from '../../../util/git/simple-git.ts';
 import { toSha256 } from '../../../util/hash.ts';
 import { memCacheProvider } from '../../../util/http/cache/memory-http-cache-provider.ts';
 import { acquireLock } from '../../../util/mutex.ts';

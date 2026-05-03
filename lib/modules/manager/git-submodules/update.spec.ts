@@ -6,14 +6,14 @@ import { mock } from 'vitest-mock-extended';
 import { fs } from '~test/util.ts';
 import { GlobalConfig } from '../../../config/global.ts';
 import type { RepoGlobalConfig } from '../../../config/types.ts';
-import * as git from '../../../util/git/index.ts';
+import * as simpleGit from '../../../util/git/simple-git.ts';
 import * as hostRules from '../../../util/host-rules.ts';
 import type { Upgrade } from '../types.ts';
 import { updateDependency } from './index.ts';
 
 vi.mock('../../../util/fs/index.ts');
 
-const createSimpleGit = vi.mocked(git.createSimpleGit);
+const createSimpleGit = vi.mocked(simpleGit.createSimpleGit);
 const gitMock = mock<SimpleGit>();
 const baseDir = `${import.meta.dirname}/__fixtures__`;
 

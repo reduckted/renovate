@@ -2,12 +2,12 @@ import type { SimpleGit } from 'simple-git';
 import type { MockProxy } from 'vitest-mock-extended';
 import { mock } from 'vitest-mock-extended';
 import { Fixtures } from '~test/fixtures.ts';
-import * as git from '../../../util/git/index.ts';
+import * as simpleGit from '../../../util/git/simple-git.ts';
 import { add, clear } from '../../../util/host-rules.ts';
 import { getPkgReleases } from '../index.ts';
 import { GitRefsDatasource } from './index.ts';
 
-const createSimpleGit = vi.mocked(git.createSimpleGit);
+const createSimpleGit = vi.mocked(simpleGit.createSimpleGit);
 
 const packageName = 'https://github.com/example/example.git';
 

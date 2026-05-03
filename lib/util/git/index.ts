@@ -3,13 +3,8 @@ import { isBoolean, isNonEmptyObject, isString } from '@sindresorhus/is';
 import fs from 'fs-extra';
 import { DateTime } from 'luxon';
 import semver from 'semver';
-import type {
-  Options,
-  SimpleGit,
-  SimpleGitOptions,
-  TaskOptions,
-} from 'simple-git';
-import { ResetMode, simpleGit } from 'simple-git';
+import type { Options, TaskOptions } from 'simple-git';
+import { ResetMode } from 'simple-git';
 import { setTimeout } from 'timers/promises';
 import upath from 'upath';
 import { getConfigFileNames } from '../../config/app-strings.ts';
@@ -33,7 +28,6 @@ import type { GitProtocol } from '../../types/git.ts';
 import { incCountValue, incLimitedValue } from '../../workers/global/limits.ts';
 import { getCache } from '../cache/repository/index.ts';
 import { getEnv } from '../env.ts';
-import type { ExtraEnv } from '../exec/types.ts';
 import { getChildEnv } from '../exec/utils.ts';
 import { newlineRegex, regEx } from '../regex.ts';
 import { matchRegexOrGlobList } from '../string-match.ts';
@@ -44,7 +38,7 @@ import {
   getCachedBehindBaseResult,
   setCachedBehindBaseResult,
 } from './behind-base-branch-cache.ts';
-import { getNoVerify, simpleGitConfig } from './config.ts';
+import { getNoVerify } from './config.ts';
 import {
   getCachedConflictResult,
   setCachedConflictResult,
@@ -61,6 +55,7 @@ import {
   setCachedModifiedResult,
 } from './modified-cache.ts';
 import { configSigningKey, writePrivateKey } from './private-key.ts';
+import { createSimpleGit } from './simple-git.ts';
 import type {
   CommitFilesConfig,
   CommitResult,
@@ -85,18 +80,6 @@ const delaySeconds = 3;
 const delayFactor = 2;
 
 export const RENOVATE_FORK_UPSTREAM = 'renovate-fork-upstream';
-
-export function createSimpleGit({
-  config,
-  env,
-}: {
-  config?: Partial<SimpleGitOptions>;
-  env?: ExtraEnv;
-} = {}): SimpleGit {
-  return simpleGit({ ...simpleGitConfig(), ...config }).env(
-    getChildEnv({ env }),
-  );
-}
 
 // A generic wrapper for simpleGit.* calls to make them more fault-tolerant
 export async function gitRetry<T>(gitFunc: () => Promise<T>): Promise<T> {

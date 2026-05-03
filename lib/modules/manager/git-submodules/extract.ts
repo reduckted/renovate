@@ -2,7 +2,7 @@ import type { SimpleGit } from 'simple-git';
 import upath from 'upath';
 import { GlobalConfig } from '../../../config/global.ts';
 import { logger } from '../../../logger/index.ts';
-import { createSimpleGit } from '../../../util/git/index.ts';
+import { createSimpleGit } from '../../../util/git/simple-git.ts';
 import { getHttpUrl } from '../../../util/git/url.ts';
 import { regEx } from '../../../util/regex.ts';
 import { GitRefsDatasource } from '../../datasource/git-refs/index.ts';

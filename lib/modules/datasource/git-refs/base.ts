@@ -2,7 +2,7 @@ import { isTruthy } from '@sindresorhus/is';
 import { logger } from '../../../logger/index.ts';
 import { withCache } from '../../../util/cache/package/with-cache.ts';
 import { getGitEnvironmentVariables } from '../../../util/git/auth.ts';
-import { createSimpleGit } from '../../../util/git/index.ts';
+import { createSimpleGit } from '../../../util/git/simple-git.ts';
 import { getRemoteUrlWithToken } from '../../../util/git/url.ts';
 import { newlineRegex, regEx } from '../../../util/regex.ts';
 import { Datasource } from '../datasource.ts';

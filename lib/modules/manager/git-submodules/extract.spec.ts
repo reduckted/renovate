@@ -2,11 +2,11 @@ import { isArray, isString } from '@sindresorhus/is';
 import type { Response, SimpleGit } from 'simple-git';
 import { mock } from 'vitest-mock-extended';
 import { GlobalConfig } from '../../../config/global.ts';
-import * as git from '../../../util/git/index.ts';
+import * as simpleGit from '../../../util/git/simple-git.ts';
 import * as hostRules from '../../../util/host-rules.ts';
 import { extractPackageFile } from './index.ts';
 
-const createSimpleGit = vi.mocked(git.createSimpleGit);
+const createSimpleGit = vi.mocked(simpleGit.createSimpleGit);
 
 const gitMock = mock<SimpleGit>();
 

@@ -12,14 +12,14 @@ import { GlobalConfig } from '../../../config/global.ts';
 import type { RepoGlobalConfig } from '../../../config/types.ts';
 import { EXTERNAL_HOST_ERROR } from '../../../constants/error-messages.ts';
 import * as memCache from '../../../util/cache/memory/index.ts';
-import * as git from '../../../util/git/index.ts';
+import * as simpleGit from '../../../util/git/simple-git.ts';
 import type { Timestamp } from '../../../util/timestamp.ts';
 import { getPkgReleases } from '../index.ts';
 import { CrateDatasource } from './index.ts';
 import type { RegistryConfigSchema } from './schema.ts';
 
 vi.unmock('../../../util/mutex.ts');
-const createSimpleGit = vi.mocked(git.createSimpleGit);
+const createSimpleGit = vi.mocked(simpleGit.createSimpleGit);
 
 const API_BASE_URL = 'https://crates.io';
 const DL_BASE_URL = 'https://static.crates.io/crates';

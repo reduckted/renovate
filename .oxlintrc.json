@@ -208,7 +208,11 @@
       }
     },
     {
-      "files": ["lib/util/git/index.ts", "tools/**/*.mjs", "lib/**/*.spec.ts"],
+      "files": [
+        "lib/util/git/simple-git.ts",
+        "tools/**/*.mjs",
+        "lib/**/*.spec.ts"
+      ],
       "rules": {
         "no-restricted-imports": [
           "error",

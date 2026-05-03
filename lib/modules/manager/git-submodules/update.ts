@@ -3,7 +3,7 @@ import { GlobalConfig } from '../../../config/global.ts';
 import { logger } from '../../../logger/index.ts';
 import { readLocalFile } from '../../../util/fs/index.ts';
 import { getGitEnvironmentVariables } from '../../../util/git/auth.ts';
-import { createSimpleGit } from '../../../util/git/index.ts';
+import { createSimpleGit } from '../../../util/git/simple-git.ts';
 import type { UpdateDependencyConfig } from '../types.ts';
 
 export default async function updateDependency({
