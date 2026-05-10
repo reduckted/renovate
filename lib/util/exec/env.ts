@@ -41,6 +41,11 @@ const basicEnvVars = [
   // pnpm specific variables
   'PNPM_WORKERS',
   'PNPM_MAX_WORKERS',
+  // Required for using dotnet-install.ps1 on Windows.
+  'PROCESSOR_ARCHITEW6432',
+  'PROCESSOR_ARCHITECTURE',
+  // Required for running executables without specifying an extension on Windows.
+  'PATHEXT',
 ];
 
 export function getChildProcessEnv(
